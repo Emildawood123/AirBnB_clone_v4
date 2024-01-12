@@ -3,7 +3,7 @@ $('document').ready(() => {
   const listOfNamesOfS = [];
   const listOfNamesOfC = [];
   let a_name;
-  const url = 'http://192.168.1.7:5001/api/v1/status/';
+  const url = 'http://0.0.0.0:5001/api/v1/status/';
   $('.amenities input[type=checkbox]').change (function () {
     a_name = $(this).attr('data-name');
     if ($(this).is(':checked')) {
@@ -39,9 +39,10 @@ $('document').ready(() => {
     }
   });
   searchpa();
+  revShow();
 });
 function searchpa () {
-  const url_p = 'http://192.168.1.7:5001/api/v1/places_search/'
+  const url_p = 'http://0.0.0.0:5001/api/v1/places_search/'
   $.ajax({
     url: url_p,
     type: 'POST',
@@ -63,31 +64,58 @@ function searchpa () {
                                   response[i].description +
                                   '</div><div class="reviews"><h2><span id="' +
                                   response[i].id +
-                                  '" class="review">Reviews</span><span id="' +
+                                  '_r" class="review">Reviews </span><span id="' +
                                   response[i].id +
                                   '" onclick="revShow(this)"' +
-                                  '> show</span></h2><ul id="' +
+                                  '>show</span></h2><ul id="' +
                                   response[i].id +
-                                  '"></ul></div></article>');
+                                  '_s"></ul></div></article>');
       }
     }
   });
 }
 function revShow (obj) {
+  let date;
   if (obj === undefined) {
     return;
   }
-  if (obj.textContent === ' show') {
-    obj.textContent = ' hide';
-    $.get(`http://192.168.1.7:5001/api/v1/places/${obj.id}/reviews`, (response) => {
-      if (response.status === 'OK') {
-        $(`#${obj.id}n`).html(response.length + ' Reviews');
-        
+  if (obj.textContent === 'show') {
+    obj.textContent = 'hide';
+    $.get('http://0.0.0.0:5001/api/v1/places/' + obj.id + '/reviews', (data, st) => {
+      if (st === 'OK') {
+        $('#' + obj.id + '_r').text(data.length + ' Reviews ');
+        for (let i = 0; i < data.length; i++) {
+          date = new Date(data[i].created_at);
+          if (data[i].user_id) {
+            $.get('http://0.0.0.0:5001/api/v1/users/' + data[i].user_id, (res, stt) => {
+              if (stt === 'OK') {
+                $('#' + obj.id + '_s').append('<li><h3>From ' +
+                res.first_name +
+                res.last_name +
+                'the ' + dayth(date.getDate()) +
+                ' ' + date.getMonth() +
+                ' ' + date.getFullYear() +
+                '</h3><p>' +
+                response[i].text +
+                '</p></li>');
+              }
+            });
+          }
+        }
       }
     });
   } else {
-    obj.textContent = ' show';
-    $(`#${obj.id}n`).html('Reviews');
-    $(`#${obj.id}r`).empty();
+    obj.textContent = 'show';
+    $('#' + obj.id + '_r').html(' Reviews ');
+    $('#' + obj.id + '_s').empty();
   }
 }
+const dayth = (d) => {
+  if (d > 3 && d < 21) return 'th';
+  switch (d % 10) {
+    case 1:  return "st";
+    case 2:  return "nd";
+    case 3:  return "rd";
+    default: return "th";
+  }
+};
