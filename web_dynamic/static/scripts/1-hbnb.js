@@ -1,15 +1,12 @@
 $('document').ready(() => {
-  const list = [];
   const listOfNames = [];
-  $('input').click(function (e) {
-    if (e.currentTarget.checked) {
-      list.push(e.currentTarget.dataset.id);
-      listOfNames.push(e.currentTarget.dataset.name);
+  $('input[type=checkbox]').change (function () {
+    const a_name = $(this).attr('data-name');
+    if ($(this).is(':checked')) {
+      listOfNames.push(a_name);
+    } else {
+	    listOfNames = listOfNames.filter(names => names !== a_name);
     }
-    if (!e.currentTarget.checked) {
-      list.splice(list.indexOf(e.currentTarget.dataset.id), 1);
-      listOfNames.splice(listOfNames.indexOf(e.currentTarget.dataset.name), 1);
-    }
-    $('DIV.amenities H4').text(listOfNames.join());
+    $('.amenities h4').text(listOfNames.join(', '));
   });
 });

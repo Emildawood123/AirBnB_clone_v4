@@ -1,21 +1,20 @@
 $('document').ready(() => {
-  const list = [];
   const listOfNames = [];
-  $('input').click(function (e) {
-    if (e.currentTarget.checked) {
-      list.push(e.currentTarget.dataset.id);
-      listOfNames.push(e.currentTarget.dataset.name);
+  const url = 'http://0.0.0.0:5001/api/v1/status/';
+  $('input[type=checkbox]').change (function () {
+    const a_name = $(this).attr('data-name');
+    if ($(this).is(':checked')) {
+      listOfNames.push(a_name);
+    } else {
+	    listOfNames = listOfNames.filter(names => names !== a_name);
     }
-    if (!e.currentTarget.checked) {
-      list.splice(list.indexOf(e.currentTarget.dataset.id), 1);
-      listOfNames.splice(listOfNames.indexOf(e.currentTarget.dataset.name), 1);
+    $('.amenities h4').text(listOfNames.join(', '));
+  });
+  $.get(url, (response) => {
+    if (response.status === 'OK') {
+      $('#api_status').addClass('available');
+    } else {
+      $('#api_status').removeClass('available');
     }
-    $('DIV.amenities H4').text(listOfNames.join());
   });
 });
-fetch('http://0.0.0.0:5001/api/v1/status/').then(res => res.json()).then(data => {
-  if (data.status === 'OK') {
-    $('DIV#api_status').addClass('available');
-  }
-}
-);
